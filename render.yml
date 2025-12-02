@@ -3,17 +3,26 @@ services:
     name: n8n-free
     env: docker
     plan: free
-    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
+
     envVars:
       - key: N8N_PORT
-        value: 5678
+        value: "5678"
       - key: N8N_PROTOCOL
         value: "http"
       - key: N8N_HOST
         value: "0.0.0.0"
-      - key: WEBHOOK_URL
-        value: "https://n8n-free.onrender.com/"
+
+      # These 3 use your Render URL (update after first deploy if needed)
       - key: N8N_EDITOR_BASE_URL
-        value: "https://n8n-free.onrender.com/"
+        value: "https://n8n-free.onrender.com"
       - key: N8N_PUBLIC_BASE_URL
-        value: "https://n8n-free.onrender.com/"
+        value: "https://n8n-free.onrender.com"
+      - key: N8N_WEBHOOK_TUNNEL_URL
+        value: "https://n8n-free.onrender.com"
+
+      # Optional: timezone
+      - key: TZ
+        value: "Asia/Kolkata"
