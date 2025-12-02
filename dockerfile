@@ -10,17 +10,6 @@ ENV N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
 # Data folder
 VOLUME /home/node/.n8n
 
-# Create a wrapper script to find and run n8n
-RUN echo '#!/bin/sh' > /start-n8n.sh && \
-    echo 'if command -v n8n >/dev/null 2>&1; then' >> /start-n8n.sh && \
-    echo '  exec n8n start' >> /start-n8n.sh && \
-    echo 'elif [ -f /usr/local/bin/n8n ]; then' >> /start-n8n.sh && \
-    echo '  exec /usr/local/bin/n8n start' >> /start-n8n.sh && \
-    echo 'elif [ -f /usr/local/lib/node_modules/n8n/bin/n8n ]; then' >> /start-n8n.sh && \
-    echo '  exec node /usr/local/lib/node_modules/n8n/bin/n8n start' >> /start-n8n.sh && \
-    echo 'else' >> /start-n8n.sh && \
-    echo '  exec node -e "require(\\"n8n/bin/n8n\\").start()"' >> /start-n8n.sh && \
-    echo 'fi' >> /start-n8n.sh && \
-    chmod +x /start-n8n.sh
-
-CMD ["/start-n8n.sh"]
+# Use shell to find and run n8n - try multiple locations
+# Avoid nested quotes by using single quotes inside the node -e command
+CMD ["sh", "-c", "if command -v n8n >/dev/null 2>&1; then exec n8n; elif [ -x /usr/local/bin/n8n ]; then exec /usr/local/bin/n8n; elif [ -f /usr/local/lib/node_modules/n8n/bin/n8n ]; then exec node /usr/local/lib/node_modules/n8n/bin/n8n; else N8N_MODULE=$(find /usr -path '*/node_modules/n8n/bin/n8n' 2>/dev/null | head -1); exec node \"$N8N_MODULE\"; fi"]
